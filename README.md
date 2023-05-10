@@ -1,2 +1,2 @@
-# synergy_plasticity_pid
+# Synergy Plasticity PID
 Partial information decomposition (PID) analysis of neuronal plasticity model.
