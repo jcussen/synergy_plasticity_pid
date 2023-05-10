@@ -1,0 +1,6 @@
+# pycharm
+.idea/
+
+# Data/plot files
+*.dat
+*.pdf
