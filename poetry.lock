@@ -169,6 +169,17 @@ files = [
 license = ["ukkonen"]
 
 [[package]]
+name = "infotheory"
+version = "1.0.01"
+description = "Information theoretic analysis tools"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "infotheory-1.0.01.tar.gz", hash = "sha256:e2cb2973b614ad994ee884ba41c5b0168e58982539ff7b90d84a9d25ac622be4"},
+]
+
+[[package]]
 name = "kiwisolver"
 version = "1.4.4"
 description = "A fast implementation of the Cassowary constraint solver"
@@ -681,4 +692,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.3)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f118860ca2e5e1b8643eb254882747989e505fce7d7acde5a8ef62a55ff91f3a"
+content-hash = "695a48736980ef92a8230fd7a0a7e2d092a8c9b0b0c0b87153bb47d969499d5e"
