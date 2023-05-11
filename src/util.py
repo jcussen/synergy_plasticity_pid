@@ -8,6 +8,7 @@ import numpy as np
 import os
 from pathlib import Path
 
+
 # get file paths and names
 working_dir = os.getcwd()
 spiking_data_dir = os.path.join(working_dir, "files", "spiking_data")
@@ -41,6 +42,8 @@ spiking_data_cols = [
     "in2_pathway_t",  # inhibitory pop. 2 pathway spike count (tonic)
 ]
 
+trials_group_cols = ["trials_group"]  # the label for the set of 10,000 trials
+
 # the columns that define each experimental condition
 condition_cols = [
     "k_condition",  # experimental condition (1=control case; 2=pop 1 OFF; 3=pop 2 OFF)
@@ -66,25 +69,9 @@ phasic_cols = [name + "_ph" for name in spiking_names]
 tonic_cols = [name + "_t" for name in spiking_names]
 
 # the desired column order for combined data
-combined_cols = condition_cols + step_input_cols + phasic_cols + tonic_cols
-
-
-# data processing functions
-def read_data(filepath):
-    """reads spiking data from .dat format into dataframe with columns"""
-    data = np.loadtxt(filepath)
-    df = pd.DataFrame(data=data, columns=spiking_data_cols)
-    return df
-
-
-def combine_data(scheme_filepaths):
-    """combines .dat files of spiking data for a plasticity condition"""
-    spiking_list = [read_data(filepath) for filepath in scheme_filepaths]
-    spiking_df = pd.concat(spiking_list)
-    # reorder and drop unnecessary cols
-    sorted_df = spiking_df.sort_values(by=condition_cols)
-    df = sorted_df[combined_cols]
-    return df
+combined_cols = (
+    trials_group_cols + condition_cols + step_input_cols + phasic_cols + tonic_cols
+)
 
 
 # helper functions
@@ -95,15 +82,36 @@ def get_n_trials(df):
     return int(n_trials)
 
 
+# data processing functions
+def read_data(filepath):
+    """reads spiking data from .dat format into dataframe with columns"""
+    data = np.loadtxt(filepath)
+    df = pd.DataFrame(data=data, columns=spiking_data_cols)
+    return df
+
+
+def combine_data(scheme_filepaths, trials_per_group=10000):
+    """combines .dat files of spiking data for a plasticity condition"""
+    spiking_list = [read_data(filepath) for filepath in scheme_filepaths]
+    spiking_df = pd.concat(spiking_list)
+    # reorder and drop unnecessary cols
+    sorted_df = spiking_df.sort_values(by=condition_cols)
+    # add label to each trials group
+    sorted_df.loc[:, "trials_group"] = (
+        sorted_df.groupby(condition_cols).cumcount() // trials_per_group
+    ) + 1
+    df = sorted_df[combined_cols].reset_index(drop=True)
+    return df
+
+
 #%%
-anti_spiking = combine_data(anti_spiking_files)
+# hebb_spiking = combine_data(hebb_spiking_files)
 
-n_trials = get_n_trials(anti_spiking)
 
 #%%
 
-for filepath in anti_spiking_files:
-    print(filepath)
+# for filepath in anti_spiking_files:
+#     print(filepath)
 
 #%%
 # anti_test = read_data(

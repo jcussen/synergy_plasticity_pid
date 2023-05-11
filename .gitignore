@@ -1,5 +1,7 @@
 # pycharm
 .idea/
+__pycache__/
+
 
 # Data/plot files
 *.dat
