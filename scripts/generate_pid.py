@@ -1,5 +1,6 @@
 import os
 import sys
+import pandas as pd
 
 #%%
 working_dir = "synergy_plasticity_pid"
@@ -8,26 +9,13 @@ os.chdir(current_dir.split(working_dir)[0] + working_dir)
 sys.path.append(os.getcwd())
 #%%
 
-from src.pid import pid_table, pid_4D
-from src.util import (
-    combine_data,
-    hebb_spiking_files,
-    anti_spiking_files,
-    scal_spiking_files,
-)
+from src.pid import generate_pid_results, pid_analysis
+
+from src.util import spiking_files_dict
 
 
-#%%
-anti_spiking = combine_data(anti_spiking_files)
+#%% generate all results
 
-
-#%%
-example = anti_spiking[anti_spiking["trials_group"] == 1]
-
-#%%
-df = pid_table(example)
-
-#%%
-print(df)
-
-# mi, u1, u2, u3, r, sy = pid_4D(example, 1, 9, 20, "4D", True)
+for phasic in [True, False]:
+    for condition in spiking_files_dict.keys():
+        generate_pid_results(condition, phasic=phasic)

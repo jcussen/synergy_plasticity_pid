@@ -12,12 +12,20 @@ from pathlib import Path
 # get file paths and names
 working_dir = os.getcwd()
 spiking_data_dir = os.path.join(working_dir, "files", "spiking_data")
+results_dir = os.path.join(working_dir, "files", "results")
 schemes = ["Hebbian", "Hebbian_antiHebbian", "Hebbian_scaling"]
 scheme_paths = [os.path.join(spiking_data_dir, scheme) for scheme in schemes]
 hebb_spiking_files, anti_spiking_files, scal_spiking_files = [
     [file for file in Path(scheme).glob("**/*") if file.is_file()]
     for scheme in scheme_paths
 ]
+
+# dictionary for spiking files
+spiking_files_dict = {
+    "Hebbian": hebb_spiking_files,
+    "Hebbian_antiHebbian": anti_spiking_files,
+    "Hebbian_scaling": scal_spiking_files,
+}
 
 # list of columns and descriptions
 spiking_data_cols = [
@@ -64,9 +72,43 @@ spiking_names = [
     "in2_pathway",  # inhibitory pop. 2 pathway spike count
 ]
 
+# pid condition cols
+pid_value_cols = [
+    "mi",
+    "u1",
+    "u2",
+    "u3",
+    "r",
+    "sy",
+    "mi_13",
+    "r_13",
+    "sy_13",
+    "un_13",
+    "mi_12",
+    "r_12",
+    "sy_12",
+    "un_12",
+    "mi_23",
+    "r_23",
+    "sy_23",
+    "un_23",
+]
+
 # phasic and tonic column names
 phasic_cols = [name + "_ph" for name in spiking_names]
 tonic_cols = [name + "_t" for name in spiking_names]
+
+# pid table columns
+pid_cols = trials_group_cols + condition_cols + pid_value_cols
+
+# pid analysis dictionary
+pid_cols_dict = {
+    "4D": spiking_names,
+    "in1_excluded": [name for name in spiking_names if "in1" not in name],
+    "in2_excluded": [name for name in spiking_names if "in2" not in name],
+    "ex_excluded": [name for name in spiking_names if "ex" not in name],
+}
+
 
 # the desired column order for combined data
 combined_cols = (
@@ -102,18 +144,3 @@ def combine_data(scheme_filepaths, trials_per_group=10000):
     ) + 1
     df = sorted_df[combined_cols].reset_index(drop=True)
     return df
-
-
-#%%
-# hebb_spiking = combine_data(hebb_spiking_files)
-
-
-#%%
-
-# for filepath in anti_spiking_files:
-#     print(filepath)
-
-#%%
-# anti_test = read_data(
-#     "/Users/JoeCussen/Documents/Publications/neuroscience/synergy_plasticity/repos/synergy_plasticity_pid/files/spiking_data/Hebbian_antiHebbian/561825436_50000.dat"
-# )
