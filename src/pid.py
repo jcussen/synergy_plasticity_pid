@@ -165,7 +165,7 @@ def pid_table(df, phasic=True):
                 row_vals = {name: val for name, val in zip(pid_cols, vals)}
                 df_pid.loc[row_idx] = row_vals
                 row_idx += 1
-    return df
+    return df_pid
 
 
 # #%%

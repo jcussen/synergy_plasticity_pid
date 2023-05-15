@@ -1,8 +1,6 @@
 import os
 import sys
 
-#
-
 #%%
 working_dir = "synergy_plasticity_pid"
 current_dir = os.getcwd()
@@ -30,5 +28,6 @@ example = anti_spiking[anti_spiking["trials_group"] == 1]
 df = pid_table(example)
 
 #%%
+print(df)
 
 # mi, u1, u2, u3, r, sy = pid_4D(example, 1, 9, 20, "4D", True)
