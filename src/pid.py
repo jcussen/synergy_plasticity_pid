@@ -143,6 +143,9 @@ def pid_table(df, phasic=True):
                         df, k, pw, t, "in2_excluded", phasic
                     )
                 vals = [
+                    k,
+                    pw,
+                    t,
                     mi,
                     u1,
                     u2,
@@ -165,6 +168,8 @@ def pid_table(df, phasic=True):
                 row_vals = {name: val for name, val in zip(pid_cols, vals)}
                 df_pid.loc[row_idx] = row_vals
                 row_idx += 1
+    # Set negative values to 0.0
+    df_pid = df_pid.applymap(lambda x: max(x, 0.0))
     return df_pid
 
 
