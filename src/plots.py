@@ -1,90 +1,42 @@
-import matplotlib.pyplot as plt
 import os
-
+import matplotlib.pyplot as plt
 import pandas as pd
 
-from src.util import figures_dir, results_dir, condition_cols, pid_value_cols, schemes
-
-#%% All dictionaries for names of columns/variables
-
-col_dic = {
-    "mi_mean": "$I(X_{1}, X_{2}, X_{3}; T)$",
-    "r_mean": "$I_{\partial}^{\{1\} \{2\} \{3\}}$",
-    "u1_mean": "$I_{\partial}^{\{1\}}$",
-    "sy_mean": "$I_{\partial}^{\{1 2 3\}}$",
-    "sy_12_mean": "$I_{\partial}^{\{1 2\}}*$",
-    "sy_13_mean": "$I_{\partial}^{\{1 3\}}*$",
-}
-
-pref_col_dic_p1off = {
-    "mi_13_mean": "$I(X_{1}, X_{3}; T)$",
-    "r_13_mean": "$I_{\partial}^{\{1\} \{3\}}$",
-    "un_13_mean": "$I_{\partial}^{\{1\}}$",
-    "sy_13_mean": "$I_{\partial}^{\{1 3\}}$",
-}
-
-nonpref_col_dic_p1off = {
-    "mi_13_mean": "$I(Y_{1}, Y_{3}; T)$",
-    "r_13_mean": "$I_{\partial}^{\{1\} \{3\}}$",
-    "un_13_mean": "$I_{\partial}^{\{1\}}$",
-    "sy_13_mean": "$I_{\partial}^{\{1 3\}}$",
-}
-
-pref_col_dic_p2off = {
-    "mi_12_mean": "$I(X_{1}, X_{2}; T)$",
-    "r_12_mean": "$I_{\partial}^{\{1\} \{2\}}$",
-    "un_12_mean": "$I_{\partial}^{\{1\}}$",
-    "sy_12_mean": "$I_{\partial}^{\{1 2\}}$",
-}
-
-nonpref_col_dic_p2off = {
-    "mi_12_mean": "$I(Y_{1}, Y_{2}; T)$",
-    "r_12_mean": "$I_{\partial}^{\{1\} \{2\}}$",
-    "un_12_mean": "$I_{\partial}^{\{1\}}$",
-    "sy_12_mean": "$I_{\partial}^{\{1 2\}}$",
-}
-
-main_col_dic = {
-    1: {1: col_dic, 9: col_dic},  # both populations on
-    2: {1: nonpref_col_dic_p1off, 9: pref_col_dic_p1off},  # pop 1 off
-    3: {1: nonpref_col_dic_p2off, 9: pref_col_dic_p2off},
-}  # pop 2 off
-
-#%%
+from src.util import (
+    figures_dir,
+    results_dir,
+    condition_cols,
+    pid_value_cols,
+    schemes,
+    col_labels,
+    plot_colours,
+)
 
 
-def plot_err_bar(data, big_col_dict, cond, pw, fold_path):
-    fullpath = str(fold_path) + "/ERR_cond_" + str(cond) + "_pw" + str(pw)
-    col_dict = big_col_dict.get(cond).get(pw)
+def plot_pid(data, k, pw, output_dir):
+    """plots raw PID values (in bits) with standard deviation error bars"""
+    output_path = str(output_dir) + f"/pid_{str(k)}_{str(pw)}"
+    col_dict = col_labels.get(k).get(pw)
     fig, ax = plt.subplots()
     df = data[data["pathway"] == pw]
-    df = df[df["k_condition"] == cond]
+    df = df[df["k_condition"] == k]
     cols = list(col_dict.keys())
-    colours = [
-        "#1f77b4",
-        "#d62728",
-        "#2ca02c",
-        "#ff7f0e",
-        "#e377c2",
-        "#7f7f7f",
-        "#bcbd22",
-        "#17becf",
-    ]
-    for count, i in enumerate(cols):
-        std_str = i.replace("mean", "std")
+    colours = plot_colours
+    for i, mean_col in enumerate(cols):
+        std_col = mean_col.replace("mean", "std")
         ax.errorbar(
             x=df["learning_time"],
-            y=df[i],
-            yerr=df[std_str],
-            label=col_dict.get(i),
-            color=colours[count],
+            y=df[mean_col],
+            yerr=df[std_col],
+            label=col_dict.get(mean_col),
+            color=colours[i],
             ecolor="black",
             capsize=2,
         )
     ax.legend()
     ax.set_ylabel("Bits")
     ax.set_xlabel("Time (mins)")
-    plt.savefig(fullpath, bbox_inches="tight")
+    plt.savefig(output_path, bbox_inches="tight")
     plt.show()
 
 
@@ -97,7 +49,7 @@ def plot_err_bar(data, big_col_dict, cond, pw, fold_path):
 #
 # if not os.path.exists(dir):
 #     os.makedirs(dir)
-# plot_err_bar(data, main_col_dic, 1, 9, dir)
+# plot_err_bar(data, col_labels, 1, 9, dir)
 
 #%% fix col names
 #

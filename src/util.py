@@ -15,6 +15,8 @@ current_dir = os.getcwd()
 os.chdir(current_dir.split(working_dir)[0] + working_dir)
 sys.path.append(os.getcwd())
 
+# DATA PROCESSING DICTS AND LISTS
+
 # get file paths and names
 working_dir = os.getcwd()
 spiking_data_dir = os.path.join(working_dir, "files", "spiking_data")
@@ -82,24 +84,24 @@ spiking_names = [
 
 # pid condition cols
 pid_value_cols = [
-    "mi",
-    "u1",
-    "u2",
-    "u3",
-    "r",
-    "sy",
-    "mi_13",
-    "r_13",
-    "sy_13",
-    "un_13",
-    "mi_12",
-    "r_12",
-    "sy_12",
-    "un_12",
-    "mi_23",
-    "r_23",
-    "sy_23",
-    "un_23",
+    "mi",  # mutual information
+    "u1",  # unique information (source 1)
+    "u2",  # unique information (source 2)
+    "u3",  # unique information (source 3)
+    "r",  # redundant information
+    "sy",  # synergistic information
+    "mi_13",  # mutual information (between sources 1 and 3)
+    "r_13",  # redundant information (between sources 1 and 3)
+    "sy_13",  # synergistic information (between sources 1 and 3)
+    "un_13",  # unique information (between sources 1 and 3)
+    "mi_12",  # mutual information (between sources 1 and 2)
+    "r_12",  # redundant information (between sources 1 and 2)
+    "sy_12",  # synergistic information (between sources 1 and 2)
+    "un_12",  # unique information (between sources 1 and 2)
+    "mi_23",  # mutual information (between sources 2 and 3)
+    "r_23",  # redundant information (between sources 2 and 3)
+    "sy_23",  # synergistic information (between sources 2 and 3)
+    "un_23",  # unique information (between sources 2 and 3)
 ]
 
 # phasic and tonic column names
@@ -118,6 +120,11 @@ pid_cols = trials_group_cols + condition_cols + pid_value_cols
 # full condition cols
 full_condition_cols = trials_group_cols + condition_cols
 
+# the desired column order for combined data
+combined_cols = (
+    trials_group_cols + condition_cols + step_input_cols + phasic_cols + tonic_cols
+)
+
 # pid analysis dictionary
 pid_cols_dict = {
     "4D": spiking_names,
@@ -126,22 +133,9 @@ pid_cols_dict = {
     "ex_excluded": [name for name in spiking_names if "ex" not in name],
 }
 
-
-# the desired column order for combined data
-combined_cols = (
-    trials_group_cols + condition_cols + step_input_cols + phasic_cols + tonic_cols
-)
+# DATA PROCESSING FUNCTIONS
 
 
-# helper functions
-def get_n_trials(df):
-    """returns total number of trials for each subcondition"""
-    unique_conditions = df[condition_cols].drop_duplicates().shape[0]
-    n_trials = df.shape[0] / unique_conditions
-    return int(n_trials)
-
-
-# data processing functions
 def read_data(filepath):
     """reads spiking data from .dat format into dataframe with columns"""
     data = np.loadtxt(filepath)
@@ -163,6 +157,9 @@ def combine_data(scheme_filepaths, trials_per_group=10000):
     return df
 
 
+# SURROGATE ANALYSIS
+
+
 def shuffle_data(df, phasic=True, random_seed=0):
     """shuffles data to create surrogate data set"""
     shuffle_cols = phasic_input_cols
@@ -174,3 +171,57 @@ def shuffle_data(df, phasic=True, random_seed=0):
         shuffle_cols
     ].transform(lambda x: np.random.permutation(x))
     return shuffled_df
+
+
+# PLOTTING
+
+#%% All dictionaries for names of columns/variables
+
+col_labels_both = {
+    "mi_mean": "$I(X_{1}, X_{2}, X_{3}; T)$",
+    "r_mean": "$I_{\partial}^{\{1\} \{2\} \{3\}}$",
+    "u1_mean": "$I_{\partial}^{\{1\}}$",
+    "sy_mean": "$I_{\partial}^{\{1 2 3\}}$",
+    "sy_12_mean": "$I_{\partial}^{\{1 2\}}*$",
+    "sy_13_mean": "$I_{\partial}^{\{1 3\}}*$",
+}
+
+col_labels_p1off = {
+    "mi_13_mean": "$I(X_{1}, X_{3}; T)$",
+    "r_13_mean": "$I_{\partial}^{\{1\} \{3\}}$",
+    "un_13_mean": "$I_{\partial}^{\{1\}}$",
+    "sy_13_mean": "$I_{\partial}^{\{1 3\}}$",
+}
+
+col_labels_p2off = {
+    "mi_12_mean": "$I(X_{1}, X_{2}; T)$",
+    "r_12_mean": "$I_{\partial}^{\{1\} \{2\}}$",
+    "un_12_mean": "$I_{\partial}^{\{1\}}$",
+    "sy_12_mean": "$I_{\partial}^{\{1 2\}}$",
+}
+
+col_labels = {
+    1: {
+        9: col_labels_both,
+        1: {k: v.replace("X", "Y") for k, v in col_labels_both.items()},
+    },  # both populations on
+    2: {
+        9: col_labels_p1off,
+        1: {k: v.replace("X", "Y") for k, v in col_labels_p1off.items()},
+    },  # pop 1 off
+    3: {
+        9: col_labels_p2off,
+        1: {k: v.replace("X", "Y") for k, v in col_labels_p2off.items()},
+    },  # pop 2 off
+}
+
+plot_colours = [
+    "#1f77b4",
+    "#d62728",
+    "#2ca02c",
+    "#ff7f0e",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+]
