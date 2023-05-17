@@ -6,13 +6,21 @@ for reading and processing neuronal simulation data.
 import pandas as pd
 import numpy as np
 import os
+import sys
 from pathlib import Path
 
+# set up working directory
+working_dir = "synergy_plasticity_pid"
+current_dir = os.getcwd()
+os.chdir(current_dir.split(working_dir)[0] + working_dir)
+sys.path.append(os.getcwd())
 
 # get file paths and names
 working_dir = os.getcwd()
 spiking_data_dir = os.path.join(working_dir, "files", "spiking_data")
 results_dir = os.path.join(working_dir, "files", "results")
+surrogates_dir = os.path.join(working_dir, "files", "surrogates")
+figures_dir = os.path.join(working_dir, "files", "figures")
 schemes = ["Hebbian", "Hebbian_antiHebbian", "Hebbian_scaling"]
 scheme_paths = [os.path.join(spiking_data_dir, scheme) for scheme in schemes]
 hebb_spiking_files, anti_spiking_files, scal_spiking_files = [
@@ -98,8 +106,17 @@ pid_value_cols = [
 phasic_cols = [name + "_ph" for name in spiking_names]
 tonic_cols = [name + "_t" for name in spiking_names]
 
+# phasic and tonic column names
+phasic_input_cols = [
+    name + "_ph" for name in spiking_names if "postsynaptic" not in name
+]
+tonic_input_cols = [name + "_t" for name in spiking_names if "postsynaptic" not in name]
+
 # pid table columns
 pid_cols = trials_group_cols + condition_cols + pid_value_cols
+
+# full condition cols
+full_condition_cols = trials_group_cols + condition_cols
 
 # pid analysis dictionary
 pid_cols_dict = {
@@ -144,3 +161,16 @@ def combine_data(scheme_filepaths, trials_per_group=10000):
     ) + 1
     df = sorted_df[combined_cols].reset_index(drop=True)
     return df
+
+
+def shuffle_data(df, phasic=True, random_seed=0):
+    """shuffles data to create surrogate data set"""
+    shuffle_cols = phasic_input_cols
+    if not phasic:
+        shuffle_cols = tonic_input_cols
+    np.random.seed(random_seed)  # Set the random seed
+    shuffled_df = df.copy()
+    shuffled_df[shuffle_cols] = shuffled_df.groupby(full_condition_cols)[
+        shuffle_cols
+    ].transform(lambda x: np.random.permutation(x))
+    return shuffled_df

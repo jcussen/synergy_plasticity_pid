@@ -17,7 +17,9 @@ from src.util import (
     condition_cols,
     pid_value_cols,
     results_dir,
+    surrogates_dir,
     combine_data,
+    shuffle_data,
 )
 
 
@@ -32,7 +34,7 @@ def get_pid_cols(cond, phasic=True):
 def filter_data(data, g, k, pw, tm):
     """filter data on k, pathway, time"""
     output = data[data["trials_group"] == g]  # select trials group
-    output = data[data["k_condition"] == k]  # select condition k=1,2,3
+    output = output[output["k_condition"] == k]  # select condition k=1,2,3
     output = output[output["pathway"] == pw]  # select pathway pw=1,9
     output = output[output["learning_time"] == tm]  # select time point wt=0,1,2,5,10,20
     return output
@@ -146,7 +148,9 @@ def pid_analysis(df, phasic=True):
     return df_pid
 
 
-def generate_pid_results(condition="Hebbian", phasic=True):
+def generate_pid_results(
+    condition="Hebbian", phasic=True, surrogate=False, random_seed=0
+):
     """generates final PID results from spiking data"""
     if condition not in ["Hebbian", "Hebbian_antiHebbian", "Hebbian_scaling"]:
         raise ValueError(
@@ -157,15 +161,24 @@ def generate_pid_results(condition="Hebbian", phasic=True):
     if not phasic:
         phasic_name = "tonic"
 
-    # check if exists already:
+    results = "results"
     dir = os.path.join(results_dir, condition)
-    if os.path.isfile(os.path.join(dir, f"trials_results_{phasic_name}")):
-        print(f"Results data already exists for {phasic_name} {condition} condition")
+    if surrogate:
+        results = f"surrogate_{str(random_seed)}"
+        dir = os.path.join(surrogates_dir, condition)
+
+    # check if exists already:
+    if os.path.isfile(os.path.join(dir, f"trials_{results}_{phasic_name}")):
+        print(f"{results} data already exists for {phasic_name} {condition} condition")
         return
 
     spiking_files = spiking_files_dict[condition]
     print(f"Processing data ({condition})")
     spiking = combine_data(spiking_files)
+
+    if surrogate:
+        print(f"Shuffling data ({condition})")
+        spiking = shuffle_data(spiking, phasic, random_seed)
 
     print(f"Generating PIDs ({condition})")
     pid = pid_analysis(spiking, phasic)
@@ -173,12 +186,18 @@ def generate_pid_results(condition="Hebbian", phasic=True):
     print(f"Saving results ({condition})")
     if not os.path.exists(dir):
         os.makedirs(dir)
-    pid.to_feather(os.path.join(dir, f"trials_results_{phasic_name}"))
-    pid = pd.read_feather(
-        os.path.join(dir, f"trials_results_{phasic_name}")
-    )  # preserve dtypes
-    result = (
-        pid.groupby(condition_cols)[pid_value_cols].agg(["mean", "var"]).reset_index()
-    )
-    result.columns = ["{}_{}".format(col[0], col[1]) for col in result.columns]
-    result.to_feather(os.path.join(dir, f"final_results_{phasic_name}"))
+    pid.to_feather(os.path.join(dir, f"trials_{results}_{phasic_name}"))
+    if not surrogate:
+        pid = pd.read_feather(
+            os.path.join(dir, f"trials_results_{phasic_name}")
+        )  # preserve dtypes
+        result = (
+            pid.groupby(condition_cols)[pid_value_cols]
+            .agg(["mean", "std"])
+            .reset_index()
+        )
+        result.columns = [
+            "{}_{}".format(col[0], col[1]) if col[1] else col[0]
+            for col in result.columns
+        ]
+        result.to_feather(os.path.join(dir, f"final_results_{phasic_name}"))
