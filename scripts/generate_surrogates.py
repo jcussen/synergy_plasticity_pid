@@ -17,10 +17,9 @@ seed = 0
 for phasic in [True, False]:
     for condition in spiking_files_dict.keys():
         for i in range(10):
-            generate_pid_results(
-                condition, phasic=phasic, surrogate=True, random_seed=seed
-            )
+            generate_pid_results(condition, phasic=phasic, surrogate=True, seed=seed)
             seed += 1
+        # concat into overall surrogate table
 
 # %%
 

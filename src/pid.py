@@ -20,6 +20,7 @@ from src.util import (
     surrogates_dir,
     combine_data,
     shuffle_data,
+    filter_data,
 )
 
 
@@ -31,22 +32,13 @@ def get_pid_cols(cond, phasic=True):
     return [col + suffix for col in pid_cols_dict[cond]]
 
 
-def filter_data(data, g, k, pw, tm):
-    """filter data on k, pathway, time"""
-    output = data[data["trials_group"] == g]  # select trials group
-    output = output[output["k_condition"] == k]  # select condition k=1,2,3
-    output = output[output["pathway"] == pw]  # select pathway pw=1,9
-    output = output[output["learning_time"] == tm]  # select time point wt=0,1,2,5,10,20
-    return output
-
-
 #%% Define necessary PID functions using infotheory library
 
 
 def pid_3d(df, g, k, pw, t, cond, phasic=True):
     """3-dimensional partial information decomposition (2 inputs, 1 target)"""
     cols = get_pid_cols(cond, phasic)  # get columns
-    data = filter_data(df, g, k, pw, t)[
+    data = filter_data(df, k, pw, t, g)[
         cols
     ].to_numpy()  # filter data and convert to numpy
     # set up infotheory object
@@ -67,7 +59,7 @@ def pid_3d(df, g, k, pw, t, cond, phasic=True):
 def pid_4d(df, g, k, pw, t, cond, phasic=True):
     """4-dimensional partial information decomposition (3 inputs, 1 target)"""
     cols = get_pid_cols(cond, phasic)  # get columns
-    data = filter_data(df, g, k, pw, t)[
+    data = filter_data(df, k, pw, t, g)[
         cols
     ].to_numpy()  # filter data and convert to numpy
     # set up infotheory object
@@ -149,7 +141,7 @@ def pid_analysis(df, phasic=True):
 
 
 def generate_pid_results(
-    condition="Hebbian", phasic=True, surrogate=False, random_seed=0
+    condition="Hebbian", phasic=True, surrogate=False, seed=0, n_surrogates=1
 ):
     """generates final PID results from spiking data"""
     if condition not in ["Hebbian", "Hebbian_antiHebbian", "Hebbian_scaling"]:
@@ -164,30 +156,42 @@ def generate_pid_results(
     results = "results"
     dir = os.path.join(results_dir, condition)
     if surrogate:
-        results = f"surrogate_{str(random_seed)}"
+        results = f"surrogate_{str(seed)}"
         dir = os.path.join(surrogates_dir, condition)
 
     # check if exists already:
     if os.path.isfile(os.path.join(dir, f"trials_{results}_{phasic_name}")):
         print(f"{results} data already exists for {phasic_name} {condition} condition")
         return
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
     spiking_files = spiking_files_dict[condition]
     print(f"Processing data ({condition})")
     spiking = combine_data(spiking_files)
 
     if surrogate:
-        print(f"Shuffling data ({condition})")
-        spiking = shuffle_data(spiking, phasic, random_seed)
+        pid_dfs = []
+        random_seed = seed * n_surrogates
+        for i in range(n_surrogates):
+            print(f"Surrogate dataset {random_seed}")
+            print(f"Shuffling data ({condition})")
+            shuffled_spiking = shuffle_data(spiking, phasic, random_seed)
 
-    print(f"Generating PIDs ({condition})")
-    pid = pid_analysis(spiking, phasic)
+            print(f"Generating PIDs ({condition})")
+            pid = pid_analysis(shuffled_spiking, phasic)
+            pid["random_seed"] = random_seed
+            pid_dfs.append(pid)
 
-    print(f"Saving results ({condition})")
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    pid.to_feather(os.path.join(dir, f"trials_{results}_{phasic_name}"))
-    if not surrogate:
+            random_seed += 1
+
+        print(f"Saving results ({condition})")
+        surrogate_pids = pd.concat(pid_dfs)
+        surrogate_pids.to_feather(os.path.join(dir, f"trials_{results}_{phasic_name}"))
+    else:
+        print(f"Generating PIDs ({condition})")
+        pid = pid_analysis(spiking, phasic)
+        pid.to_feather(os.path.join(dir, f"trials_{results}_{phasic_name}"))
         pid = pd.read_feather(
             os.path.join(dir, f"trials_results_{phasic_name}")
         )  # preserve dtypes

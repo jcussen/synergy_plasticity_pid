@@ -136,10 +136,12 @@ pid_cols_dict = {
 # DATA PROCESSING FUNCTIONS
 
 
-def read_data(filepath):
+def read_data(filepath, adust_time=True):
     """reads spiking data from .dat format into dataframe with columns"""
     data = np.loadtxt(filepath)
     df = pd.DataFrame(data=data, columns=spiking_data_cols)
+    if adust_time:
+        df["learning_time"] = df["learning_time"].replace(2, 2.5)
     return df
 
 
@@ -155,6 +157,16 @@ def combine_data(scheme_filepaths, trials_per_group=10000):
     ) + 1
     df = sorted_df[combined_cols].reset_index(drop=True)
     return df
+
+
+def filter_data(data, k, pw, tm, g=None):
+    """filter data on k, pathway, time"""
+    output = data[data["k_condition"] == k]  # select condition k=1,2,3
+    output = output[output["pathway"] == pw]  # select pathway pw=1,9
+    output = output[output["learning_time"] == tm]  # select time point wt=0,1,2,5,10,20
+    if g:
+        output = output[output["trials_group"] == g]  # select trials group
+    return output
 
 
 # SURROGATE ANALYSIS
@@ -175,7 +187,7 @@ def shuffle_data(df, phasic=True, random_seed=0):
 
 # PLOTTING
 
-#%% All dictionaries for names of columns/variables
+# All dictionaries for names of columns/variables
 
 col_labels_both = {
     "mi_mean": "$I(X_{1}, X_{2}, X_{3}; T)$",

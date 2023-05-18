@@ -1,6 +1,5 @@
 import os
 import sys
-import pandas as pd
 
 working_dir = "synergy_plasticity_pid"
 current_dir = os.getcwd()
