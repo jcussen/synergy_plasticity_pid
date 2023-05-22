@@ -1,3 +1,9 @@
+"""
+This script creates surrogate PID values based on shuffled data,
+which is used to test the statistical significance of results.
+Run this script second.
+"""
+
 import os
 import sys
 

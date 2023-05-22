@@ -1,3 +1,9 @@
+"""
+This script performs PID analysis using the spiking data.
+It saves the results to files/results.
+Run this script first.
+"""
+
 import os
 import sys
 
