@@ -186,7 +186,7 @@ def generate_pid_results(
             random_seed += 1
 
         print(f"Saving results ({condition})")
-        surrogate_pids = pd.concat(pid_dfs)
+        surrogate_pids = pd.concat(pid_dfs).reset_index(drop=True)
         surrogate_pids.to_feather(os.path.join(dir, f"trials_{results}_{phasic_name}"))
     else:
         print(f"Generating PIDs ({condition})")

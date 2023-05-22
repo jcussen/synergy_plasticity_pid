@@ -1,80 +1,23 @@
 import os
 import sys
 import re
+
+import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
-from pathlib import Path
-from scipy.stats import mannwhitneyu
 
 working_dir = "synergy_plasticity_pid"
 current_dir = os.getcwd()
 os.chdir(current_dir.split(working_dir)[0] + working_dir)
 sys.path.append(os.getcwd())
 
-from src.util import (
-    surrogates_dir,
-    results_dir,
-    condition_cols,
-    pid_value_cols,
-    filter_data,
-    pid_cols,
-)
 
 #%%
 
 
-def get_data(dir, condition, file_name, phasic_name):
-    """gets data from a directory"""
-    condition_dir = os.path.join(dir, condition)
-    filepaths = [
-        file
-        for file in Path(condition_dir).iterdir()
-        if file.is_file() and phasic_name in file.name and phasic_name in file.name
-    ]
-    if filepaths == []:
-        print(
-            f"{file_name} data does not exist for {phasic_name} {condition} condition"
-        )
-        return
-    else:
-        filepath = filepaths[0]
-    return pd.read_feather(filepath)
-
-
-def generate_p_values(condition="Hebbian", phasic=True):
-    """compares surrogate and results data using statistical test"""
-    # set up
-    if condition not in ["Hebbian", "Hebbian_antiHebbian", "Hebbian_scaling"]:
-        raise ValueError(
-            "Invalid condition provided: must be 'Hebbian', 'Hebbian_antiHebbian' "
-            "or 'Hebbian_scaling'"
-        )
-    phasic_name = "phasic"
-    if not phasic:
-        phasic_name = "tonic"
-    # get surrogate data
-
-    surrogates = get_data(surrogates_dir, condition, "trials_surrogate", phasic_name)
-    results = get_data(results_dir, condition, "final_results", phasic_name)
-
-    # Create an empty dataframe to store the p-values
-    p_values_df = pd.DataFrame(columns=pid_cols)
-
-    for name, results_group in results.groupby(condition_cols):
-        surrogate_group = surrogates.groupby(condition_cols).get_group(name)
-
-        p_values = {}
-        for col in pid_cols:
-            # Perform Mann-Whitney U test
-            stat, p = mannwhitneyu(
-                results_group[col], surrogate_group[col], alternative="two-sided"
-            )
-            p_values[col] = p
-
-        p_values_df = p_values_df.append(p_values, ignore_index=True)
-
+# sig_df = generate_p_values()
 
 # def process_surrogates(condition = 'Hebbian', phasic = True):
 #     '''combines surrogate data and calculates aggregate values'''

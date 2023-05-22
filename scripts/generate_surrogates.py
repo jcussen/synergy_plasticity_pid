@@ -16,10 +16,10 @@ from src.util import spiking_files_dict
 seed = 0
 for phasic in [True, False]:
     for condition in spiking_files_dict.keys():
-        for i in range(10):
-            generate_pid_results(condition, phasic=phasic, surrogate=True, seed=seed)
-            seed += 1
-        # concat into overall surrogate table
+        generate_pid_results(
+            condition, phasic=phasic, surrogate=True, seed=seed, n_surrogates=10
+        )
+        seed += 1
 
 # %%
 

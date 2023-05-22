@@ -15,7 +15,7 @@ from src.util import (
 
 def plot_pid(data, k, pw, output_dir):
     """plots raw PID values (in bits) with standard deviation error bars"""
-    output_path = str(output_dir) + f"/pid_{str(k)}_{str(pw)}"
+    output_path = str(output_dir) + f"/pid_k{str(k)}_pw{str(pw)}"
     col_dict = col_labels.get(k).get(pw)
     fig, ax = plt.subplots()
     df = data[data["pathway"] == pw]

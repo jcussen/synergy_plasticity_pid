@@ -17,12 +17,13 @@ from src.util import surrogates_dir, results_dir
 #%% Read in data
 
 
-#%% Clean up file (replace 2 mins with 2.5 mins
-surrogate_filepaths = [
-    file for file in Path(surrogates_dir).glob("**/*") if file.is_file()
-]
-results_filepaths = [file for file in Path(results_dir).glob("**/*") if file.is_file()]
-all_data_filepaths = surrogate_filepaths + results_filepaths
+# #%% Clean up file (replace 2 mins with 2.5 mins
+# surrogate_filepaths = [
+#     file for file in Path(surrogates_dir).glob("**/*") if file.is_file()
+# ]
+# results_filepaths = [file for file in Path(results_dir)
+# .glob("**/*") if file.is_file()]
+# all_data_filepaths = surrogate_filepaths + results_filepaths
 
 #%%
 
@@ -32,5 +33,7 @@ all_data_filepaths = surrogate_filepaths + results_filepaths
 #     df.to_feather(filepath)
 
 #%%
-
-df = pd.read_feather(results_filepaths[0])
+# path = "/Users/JoeCussen/Documents/Publications/neuroscience/" \
+#        "synergy_plasticity/repos/synergy_plasticity_pid/files/" \
+#        "surrogates/Hebbian/trials_surrogate_0_phasic"
+# df = pd.read_feather(path)
