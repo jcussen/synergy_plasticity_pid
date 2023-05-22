@@ -1,7 +1,5 @@
 import os
 import sys
-import pandas as pd
-import numpy as np
 
 working_dir = "synergy_plasticity_pid"
 current_dir = os.getcwd()
@@ -20,9 +18,3 @@ for phasic in [True, False]:
             condition, phasic=phasic, surrogate=True, seed=seed, n_surrogates=10
         )
         seed += 1
-
-# %%
-
-# path = '/Users/JoeCussen/Documents/Publications/neuroscience/synergy_plasticity/
-# repos/synergy_plasticity_pid/files/surrogates/Hebbian/trials_results_phasic'
-# surr_example = pd.read_feather(path)

@@ -1,14 +1,12 @@
+"""
+This file contains the functions for partial information decomposition of
+simulated neuronal data and surrogate data.
+"""
+
 import pandas as pd
 import numpy as np
 import infotheory
 import os
-import sys
-
-# set up working directory
-working_dir = "synergy_plasticity_pid"
-current_dir = os.getcwd()
-os.chdir(current_dir.split(working_dir)[0] + working_dir)
-sys.path.append(os.getcwd())
 
 from src.util import (
     pid_cols,
@@ -32,7 +30,7 @@ def get_pid_cols(cond, phasic=True):
     return [col + suffix for col in pid_cols_dict[cond]]
 
 
-#%% Define necessary PID functions using infotheory library
+# Define necessary PID functions using infotheory library
 
 
 def pid_3d(df, g, k, pw, t, cond, phasic=True):
@@ -78,7 +76,7 @@ def pid_4d(df, g, k, pw, t, cond, phasic=True):
     return rnd(mi), rnd(u1), rnd(u2), rnd(u3), rnd(r), rnd(s)
 
 
-#%% combine functions above to create full PID table
+# combine functions above to create full PID table
 
 
 def pid_analysis(df, phasic=True):

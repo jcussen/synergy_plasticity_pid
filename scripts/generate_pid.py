@@ -9,7 +9,6 @@ sys.path.append(os.getcwd())
 from src.pid import generate_pid_results
 from src.util import spiking_files_dict
 
-
 #%% generate all results
 
 for phasic in [True, False]:

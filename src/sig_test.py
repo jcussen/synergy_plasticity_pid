@@ -1,14 +1,13 @@
+"""
+This file contains functions for significance testing of neuronal data,
+comparing it to the results for surrogate data.
+"""
+
 import os
-import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from scipy.stats import mannwhitneyu
-
-working_dir = "synergy_plasticity_pid"
-current_dir = os.getcwd()
-os.chdir(current_dir.split(working_dir)[0] + working_dir)
-sys.path.append(os.getcwd())
 
 from src.util import (
     surrogates_dir,
