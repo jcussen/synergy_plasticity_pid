@@ -15,6 +15,7 @@ from src.util import (
     condition_cols,
     plot_pid_cols,
     pid_value_cols,
+    phasic_names,
 )
 
 
@@ -39,6 +40,15 @@ def get_feather_data(dir, condition, file_name, phasic_name):
     return pd.read_feather(filepath)
 
 
+def add_noise(df_in, col):
+    """Adds small amount of noise to homogeneous data"""
+    df = df_in.copy()
+    noise = np.random.normal(0, 0.0001, size=df[col].shape)
+    df[col] = df[col] + noise
+    df.loc[df[col] < 0, col] = 0  # set all negative values to zero
+    return df[col]
+
+
 def generate_p_values(condition="Hebbian", phasic=True):
     """compares surrogate and results data using statistical test"""
     # set up
@@ -47,9 +57,7 @@ def generate_p_values(condition="Hebbian", phasic=True):
             "Invalid condition provided: must be 'Hebbian', 'Hebbian_antiHebbian' "
             "or 'Hebbian_scaling'"
         )
-    phasic_name = "phasic"
-    if not phasic:
-        phasic_name = "tonic"
+    phasic_name = phasic_names[phasic]
 
     # get surrogate data
     surrogates = get_feather_data(
@@ -68,14 +76,14 @@ def generate_p_values(condition="Hebbian", phasic=True):
             # Check if either group has all the same values
             if col in condition_cols:
                 p_values[col] = results_group.reset_index(drop=True).loc[0, col]
-            elif (
-                len(set(results_group[col])) == 1 or len(set(surrogate_group[col])) == 1
-            ):
-                p_values[col] = np.nan
             else:
-                stat, p = mannwhitneyu(
-                    results_group[col], surrogate_group[col], alternative="two-sided"
-                )
+                res_group = results_group[col]
+                surr_group = surrogate_group[col]
+                if len(set(results_group[col])) == 1:
+                    res_group = add_noise(results_group, col)
+                if len(set(surrogate_group[col])) == 1:
+                    surr_group = add_noise(surrogate_group, col)
+                stat, p = mannwhitneyu(res_group, surr_group, alternative="two-sided")
                 p_values[col] = p
 
         p_values_df = p_values_df.append(p_values, ignore_index=True)
@@ -98,9 +106,7 @@ def get_norm_sig(condition="Hebbian", phasic=True):
             "Invalid condition provided: must be 'Hebbian', 'Hebbian_antiHebbian' "
             "or 'Hebbian_scaling'"
         )
-    phasic_name = "phasic"
-    if not phasic:
-        phasic_name = "tonic"
+    phasic_name = phasic_names[phasic]
 
     p_values_df = generate_p_values(condition=condition, phasic=phasic)
     p_values_df.rename(

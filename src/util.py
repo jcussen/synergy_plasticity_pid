@@ -37,6 +37,9 @@ spiking_files_dict = {
     "Hebbian_scaling": scal_spiking_files,
 }
 
+# dict for phasic names
+phasic_names = {True: "phasic", False: "tonic"}
+
 # list of columns and descriptions
 spiking_data_cols = [
     "row_num",  # row count
@@ -202,6 +205,15 @@ col_labels_both = {
     "sy_13_mean": "$I_{\partial}^{\{1 3\}}*$",
 }
 
+col_labels_both_names = {
+    "mi_mean": "$I(X_{1}, X_{2}, X_{3}; T)$",
+    "r_mean": "$Red^{\{1\} \{2\} \{3\}}$",
+    "u1_mean": "$Un^{\{1\}}$",
+    "sy_mean": "$Syn^{\{1 2 3\}}$",
+    "sy_12_mean": "$Syn^{\{1 2\}}*$",
+    "sy_13_mean": "$Syn^{\{1 3\}}*$",
+}
+
 col_labels_p1off = {
     "mi_13_mean": "$I(X_{1}, X_{3}; T)$",
     "r_13_mean": "$I_{\partial}^{\{1\} \{3\}}$",
@@ -209,11 +221,25 @@ col_labels_p1off = {
     "sy_13_mean": "$I_{\partial}^{\{1 3\}}$",
 }
 
+col_labels_p1off_names = {
+    "mi_13_mean": "$I(X_{1}, X_{3}; T)$",
+    "r_13_mean": "$Red^{\{1\} \{3\}}$",
+    "un_13_mean": "$Un^{\{1\}}$",
+    "sy_13_mean": "$Syn^{\{1 3\}}$",
+}
+
 col_labels_p2off = {
     "mi_12_mean": "$I(X_{1}, X_{2}; T)$",
     "r_12_mean": "$I_{\partial}^{\{1\} \{2\}}$",
     "un_12_mean": "$I_{\partial}^{\{1\}}$",
     "sy_12_mean": "$I_{\partial}^{\{1 2\}}$",
+}
+
+col_labels_p2off_names = {
+    "mi_12_mean": "$I(X_{1}, X_{2}; T)$",
+    "r_12_mean": "$Red^{\{1\} \{2\}}$",
+    "un_12_mean": "$Un^{\{1\}}$",
+    "sy_12_mean": "$Syn^{\{1 2\}}$",
 }
 
 col_labels = {
@@ -228,6 +254,21 @@ col_labels = {
     3: {
         9: col_labels_p2off,
         1: {k: v.replace("X", "Y") for k, v in col_labels_p2off.items()},
+    },  # pop 2 off
+}
+
+col_labels_names = {
+    1: {
+        9: col_labels_both_names,
+        1: {k: v.replace("X", "Y") for k, v in col_labels_both_names.items()},
+    },  # both populations on
+    2: {
+        9: col_labels_p1off_names,
+        1: {k: v.replace("X", "Y") for k, v in col_labels_p1off_names.items()},
+    },  # pop 1 off
+    3: {
+        9: col_labels_p2off_names,
+        1: {k: v.replace("X", "Y") for k, v in col_labels_p2off_names.items()},
     },  # pop 2 off
 }
 

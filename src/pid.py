@@ -19,6 +19,7 @@ from src.util import (
     combine_data,
     shuffle_data,
     filter_data,
+    phasic_names,
 )
 
 
@@ -147,9 +148,7 @@ def generate_pid_results(
             "Invalid condition provided: must be 'Hebbian', 'Hebbian_antiHebbian' "
             "or 'Hebbian_scaling'"
         )
-    phasic_name = "phasic"
-    if not phasic:
-        phasic_name = "tonic"
+    phasic_name = phasic_names[phasic]
 
     results = "results"
     dir = os.path.join(results_dir, condition)

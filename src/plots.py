@@ -4,19 +4,16 @@ This file contains plotting functions to create results figures.
 
 import os
 import matplotlib.pyplot as plt
-from src.util import (
-    col_labels,
-    plot_colours,
-)
+from src.util import col_labels_names, plot_colours, phasic_names
 
 
-def plot_pid(data, k, pw, output_dir):
+def plot_pid(data, k, pw, output_dir, phasic=True, condition="Hebbian"):
     """plots raw PID values (in bits) with standard deviation error bars"""
-    # create dir if doesn't exist
-    if not os.path.exists(output_dir):
+    phasic_name = phasic_names[phasic]
+    if not os.path.exists(output_dir):  # create dir if doesn't exist
         os.makedirs(output_dir)
-    output_path = str(output_dir) + f"/pid_k{str(k)}_pw{str(pw)}"
-    col_dict = col_labels.get(k).get(pw)
+    output_path = str(output_dir) + f"/pid_k{str(k)}_pw{str(pw)}_{str(phasic_name)}.png"
+    col_dict = col_labels_names.get(k).get(pw)
     fig, ax = plt.subplots()
     df = data[data["pathway"] == pw]
     df = df[df["k_condition"] == k]
@@ -36,17 +33,19 @@ def plot_pid(data, k, pw, output_dir):
     ax.legend()
     ax.set_ylabel("Bits")
     ax.set_xlabel("Time (mins)")
+    ax.set_title(f"{condition} condition: k = {k}, pathway = {pw}")
     plt.savefig(output_path, bbox_inches="tight")
     plt.show()
 
 
-def plot_sig(data, k, pw, output_dir, p_value=0.05):
+def plot_sig(data, k, pw, output_dir, p_value=0.05, phasic=True, condition="Hebbian"):
     """plots normalised PID values and checks significance"""
+    phasic_name = phasic_names[phasic]
     # create dir if doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    output_path = str(output_dir) + f"/sig_k{str(k)}_pw{str(pw)}"
-    col_dict = col_labels.get(k).get(pw)
+    output_path = str(output_dir) + f"/sig_k{str(k)}_pw{str(pw)}_{str(phasic_name)}.png"
+    col_dict = col_labels_names.get(k).get(pw)
     fig, ax = plt.subplots()
     df = data[data["pathway"] == pw]
     df = df[df["k_condition"] == k]
@@ -101,6 +100,7 @@ def plot_sig(data, k, pw, output_dir, p_value=0.05):
     ax.legend()
     ax.set_ylabel("Normalised information")
     ax.set_xlabel("Time (mins)")
+    ax.set_title(f"{condition} condition: k = {k}, pathway = {pw}")
     plt.ylim(top=1)
     plt.savefig(output_path, bbox_inches="tight")
     plt.show()
