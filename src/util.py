@@ -114,6 +114,9 @@ phasic_input_cols = [
 ]
 tonic_input_cols = [name + "_t" for name in spiking_names if "postsynaptic" not in name]
 
+# plotting pid cols
+plot_pid_cols = condition_cols + pid_value_cols
+
 # pid table columns
 pid_cols = trials_group_cols + condition_cols + pid_value_cols
 
