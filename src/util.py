@@ -282,3 +282,17 @@ plot_colours = [
     "#bcbd22",
     "#17becf",
 ]
+
+pathway_names = {1: "non-preferred", 9: "preferred"}
+
+k_condition_names = {
+    1: "all on",
+    2: "inhib Hebb off",
+    3: "inhib 2 off",
+}
+
+norm_denominators = {
+    1: "mi_mean",
+    2: "mi_13_mean",
+    3: "mi_12_mean",
+}

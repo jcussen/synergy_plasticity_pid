@@ -16,6 +16,7 @@ from src.util import (
     plot_pid_cols,
     pid_value_cols,
     phasic_names,
+    norm_denominators,
 )
 
 
@@ -94,7 +95,9 @@ def normalise_results(df_results):
     """normalises the PID results with respect to mutual information"""
     df_norm = df_results.copy()
     norm_cols = [col + "_mean" for col in pid_value_cols]
-    df_norm[norm_cols] = df_norm[norm_cols].div(df_norm["mi_mean"], axis=0)
+    for i, row in df_norm.iterrows():
+        norm_denominator = norm_denominators[row["k_condition"]]
+        df_norm.loc[i, norm_cols] = row[norm_cols].div(row[norm_denominator])
     return df_norm
 
 

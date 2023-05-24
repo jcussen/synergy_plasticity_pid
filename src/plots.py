@@ -4,7 +4,13 @@ This file contains plotting functions to create results figures.
 
 import os
 import matplotlib.pyplot as plt
-from src.util import col_labels_names, plot_colours, phasic_names
+from src.util import (
+    col_labels_names,
+    plot_colours,
+    phasic_names,
+    pathway_names,
+    k_condition_names,
+)
 
 
 def plot_pid(data, k, pw, output_dir, phasic=True, condition="Hebbian"):
@@ -33,7 +39,10 @@ def plot_pid(data, k, pw, output_dir, phasic=True, condition="Hebbian"):
     ax.legend()
     ax.set_ylabel("Bits")
     ax.set_xlabel("Time (mins)")
-    ax.set_title(f"{condition} condition: k = {k}, pathway = {pw}")
+    ax.set_title(
+        f"{condition} condition ({phasic_name}):\nk = {k} ({k_condition_names[k]}), "
+        f"pathway = {pw} ({pathway_names[pw]})"
+    )
     plt.savefig(output_path, bbox_inches="tight")
     plt.show()
 
@@ -52,7 +61,7 @@ def plot_sig(data, k, pw, output_dir, p_value=0.05, phasic=True, condition="Hebb
     cols = list(col_dict.keys())
     colours = plot_colours
     for i, mean_col in enumerate(cols):
-        if mean_col != "mi_mean":
+        if "mi" not in mean_col:
             p_col = mean_col.replace("mean", "p")
             df_sig = df[df[p_col] < p_value]
             df_nonsig = df[df[p_col] >= p_value]
@@ -100,7 +109,10 @@ def plot_sig(data, k, pw, output_dir, p_value=0.05, phasic=True, condition="Hebb
     ax.legend()
     ax.set_ylabel("Normalised information")
     ax.set_xlabel("Time (mins)")
-    ax.set_title(f"{condition} condition: k = {k}, pathway = {pw}")
+    ax.set_title(
+        f"{condition} condition ({phasic_name}):\nk = {k} ({k_condition_names[k]}), "
+        f"pathway = {pw} ({pathway_names[pw]})"
+    )
     plt.ylim(top=1)
     plt.savefig(output_path, bbox_inches="tight")
     plt.show()
