@@ -285,14 +285,30 @@ plot_colours = [
 
 pathway_names = {1: "non-preferred", 9: "preferred"}
 
-k_condition_names = {
-    1: "all on",
-    2: "inhib Hebb off",
-    3: "inhib 2 off",
+inhib_2 = {
+    "Hebbian": "Hebb",
+    "Hebbian_antiHebbian": "anti-Hebb",
+    "Hebbian_scaling": "scal",
 }
+
+
+def k_condition_names(condition):
+    """helper function to get plotting title"""
+    return {
+        1: "both inhib. on",
+        2: "inhib. Hebb off",
+        3: f"inhib. {inhib_2[condition]} off",
+    }
+
 
 norm_denominators = {
     1: "mi_mean",
     2: "mi_13_mean",
     3: "mi_12_mean",
+}
+
+condition_names = {
+    "Hebbian": "Hebbian",
+    "Hebbian_antiHebbian": "Anti-Hebbian",
+    "Hebbian_scaling": "Homeostatic scaling",
 }

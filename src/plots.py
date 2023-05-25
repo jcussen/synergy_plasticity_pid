@@ -4,13 +4,20 @@ This file contains plotting functions to create results figures.
 
 import os
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 from src.util import (
     col_labels_names,
     plot_colours,
     phasic_names,
     pathway_names,
     k_condition_names,
+    condition_names,
 )
+
+font_path = font_manager.findfont(font_manager.FontProperties(family="Times New Roman"))
+font_prop = font_manager.FontProperties(fname=font_path, size=12)
+plt.rcParams["font.family"] = font_prop.get_name()
+plt.rcParams["font.size"] = font_prop.get_size()
 
 
 def plot_pid(data, k, pw, output_dir, phasic=True, condition="Hebbian"):
@@ -36,12 +43,13 @@ def plot_pid(data, k, pw, output_dir, phasic=True, condition="Hebbian"):
             ecolor="black",
             capsize=2,
         )
-    ax.legend()
+    ax.legend(prop=font_prop)
     ax.set_ylabel("Bits")
     ax.set_xlabel("Time (mins)")
     ax.set_title(
-        f"{condition} condition ({phasic_name}):\nk = {k} ({k_condition_names[k]}), "
-        f"pathway = {pw} ({pathway_names[pw]})"
+        f"{condition_names[condition]} ({phasic_name}):\n"
+        f"pw = {int(pw)} ({pathway_names[pw]}), "
+        f"k = {int(k)} ({k_condition_names(condition)[k]})"
     )
     plt.savefig(output_path, bbox_inches="tight")
     plt.show()
@@ -106,12 +114,13 @@ def plot_sig(data, k, pw, output_dir, p_value=0.05, phasic=True, condition="Hebb
                     zorder=2,
                     color="grey",
                 )
-    ax.legend()
+    ax.legend(prop=font_prop)
     ax.set_ylabel("Normalised information")
     ax.set_xlabel("Time (mins)")
     ax.set_title(
-        f"{condition} condition ({phasic_name}):\nk = {k} ({k_condition_names[k]}), "
-        f"pathway = {pw} ({pathway_names[pw]})"
+        f"{condition_names[condition]} ({phasic_name}):\n"
+        f"pw = {int(pw)} ({pathway_names[pw]}), "
+        f"k = {int(k)} ({k_condition_names(condition)[k]})"
     )
     plt.ylim(top=1)
     plt.savefig(output_path, bbox_inches="tight")
